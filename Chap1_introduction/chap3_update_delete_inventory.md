@@ -320,26 +320,82 @@ Vérifiez que le champ **level** n'existe plus après suppression.
 
 ## Opérateur switch
 
-Vous pouvez utiliser l'opérateur **switch** afin de modifier un document selon une liste de cas, attention à l'ordre dans lequel vous allez écrire vos case. Si un case match avec la condition alors le switch retourne une valeur. Attention cet opérateur doit-être mis dans des crochets :
+L'opérateur `$switch` est un opérateur **d'aggregation** permettant de modifier un document selon une liste de cas.
+
+> _(Nous aborderons plus tard en détail le principe de l'aggregation, pour l'instant admettez simplement les éléments qui vont suivre)_
+
+Pour l'exemple, nous allons tenter de modifier le champs `type` de la collection `inventory`. Récupérez d'abord tous les types distincts :
 
 ```js
-// partie update de la méthode updateMany
-[
-   "name_field" : { 
-        $switch: {
-            branches: [
-                { case: { $eq: [ 0, 5 ] }, then: "equals" }, // chaque case break implicite
-                { case: { $gt: 8 }, then: "greater than" },
-                { case: { $gt: [ { $size :  "$notes" } , 2  ], then: "less than" }
-            ],
-            default : "nothing"
-            }
-        }
-   }
-]
+db.inventory.distinct('type');
+
+// [ 'journal', 'lux paper', 'notebook', 'planner', 'postcard' ]
 ```
 
-Nous le répétons dès que l'on rentre dans un cas on sort du switch/case.
+On souhaiterait mettre à jour tous les `type` des documents en les traduisant :
+
+```
+'journal'   -> 'Actualité'
+'lux paper' -> 'Papier LUX'
+'notebook'  -> 'Carnet de texte'
+'planner'   -> 'Calendrier'
+'postcard'  -> 'Carte postale'
+```
+
+La syntaxe du `$switch` ressemblerait à ceci :
+```js
+$switch: {
+   branches: [
+      // En fonction de la valeur du champs '$type', on génère une nouvelle valeur
+      { case: { $eq: ['$type', 'journal'] }, then: 'Actualité' },
+      { case: { $eq: ['$type', 'lux paper'] }, then: 'Papier LUX' },
+      { case: { $eq: ['$type', 'notebook'] }, then: 'Carnet de texte' },
+      { case: { $eq: ['$type', 'planner'] }, then: 'Calendrier' },
+      { case: { $eq: ['$type', 'postcard'] }, then: 'Carte postale' },
+   ],
+   default: 'Pas de type'
+}
+```
+https://www.mongodb.com/docs/manual/reference/operator/aggregation/switch/
+
+Lorsque vous utilisez `$switch`, faites attention à l'ordre dans lequel vous allez écrire vos case. Si un case match avec la condition alors le `$switch` va automatiquement « break » et retourner une valeur.
+
+Afin d'implémenter le `$switch` avec la méthode `updateMany`, on ferait ceci :
+
+```js
+db.inventory.updateMany(
+  // 1. Requête
+  { type: { $exists: true } },
+  
+  // 2. Tableau -> Pipeline d'aggregation
+  [
+    {
+      // Opérateurs d'aggregation ($set, $match, …)
+      $set: {
+        // Le champs que l'on va modifier est le champs 'type'
+        type: {
+          // Début du $switch
+          $switch: {
+            branches: [
+              // En fonction de la valeur du champs '$type', on génère une nouvelle valeur
+              { case: { $eq: ["$type", "journal"] }, then: "Actualité" },
+              { case: { $eq: ["$type", "lux paper"] }, then: "Papier LUX" },
+              { case: { $eq: ["$type", "notebook"] }, then: "Carnet de texte" },
+              { case: { $eq: ["$type", "planner"] }, then: "Calendrier" },
+              { case: { $eq: ["$type", "postcard"] }, then: "Carte postale" },
+            ],
+            default: "Pas de type",
+          },
+        },
+      },
+    },
+  ]
+);
+```
+
+Notez que la syntaxe d'un `case` prend une **expression** comme valeur. Cette expression doit impérativement contenir un/des opérateur(s) d'aggrégation (comme `$eq` dans l'exemple ci-dessus):
+https://www.mongodb.com/docs/manual/reference/operator/aggregation/
+
 
 ## 05 Exercice switch
 
