@@ -51,6 +51,54 @@ db.restaurants.find( {  "grades.grade" : "A" } , {   "name" : 1, "_id" : 0 } )
 
 Avec le framework d'agrégation de MongoDB vous pouvez faire autant de sous-requêtes que vous souhaitez, dans l'ordre que vous voulez modulo l'ordre match/project.
 
+Voici un premier exemple utilisant les stages `$match` et `$project` sur la collection `restaurants` :
+
+```js
+db.restaurants.aggregate([
+    // ====================
+    // Stages d'aggregation
+    // ====================
+
+    // $match : Permet de filtrer (comme un .find classique)
+    { $match: {
+        cuisine: 'Italian'
+    } },
+
+    // $project : Permet de modifier les valeurs précédentes
+    { $project: {
+        _id: 0,
+        cuisine: 1,
+        enseigne: { $toUpper : '$name' }
+    } },
+
+    // Nouveau $match
+    { $match: {
+        enseigne: /^A/gi
+    } }
+
+]);
+```
+
+### Mini exercice
+
+Grâce à un pipeline d'aggregation, récupérez les document de la collection **restaurants** qui ont au moins un grade "A", de cuisine `American`, et générez également :
+- un nouveau champs `fullAddress` qui sera la combinaison des champs `address.building`, `address.street` et `address.zipcode`
+- un nouveau champs `fullname` qui sera la combinaison de `name` et de `borough` (la valeur de **$borough** devra être en MAJUSCULES)
+
+Le résultat final devrait ressembler à ceci :
+
+```js
+{
+    fullname: "Brunos On The Boulevard (QUEENS)",
+    fullAddress: "8825 Astoria Boulevard, 11369",
+    cuisine: "American",
+    grades: [ … ] // avec au moins un type 'A'
+}
+// … etc
+```
+
+---
+
 Nous allons donner un exemple de groupement simple, nous allons compter le nombre de restaurants qui font de la cuisine italienne par quartier. Notez bien que la clé désignant le quartier doit commencer par un dollar, en effet pour MongoDB c'est un paramètre variable :
 
 ```js
