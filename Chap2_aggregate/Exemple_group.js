@@ -7,10 +7,7 @@
 db.restaurants.aggregate([
 
     { $project: {
-        address: 1,
-        borough: 1,
         cuisine: 1,
-        name: 1,
         grades: '$grades.score',
         nbGrades: { $size: '$grades' },
         gradesAvg: { $avg: '$grades.score' },
@@ -23,6 +20,12 @@ db.restaurants.aggregate([
         nbRestaurants: { $sum: 1 },
         nbNotes: { $sum: '$nbGrades'},
         avgNotation: { $avg: '$gradesAvg' },
+    } },
+
+    // On refait un $match pour ne conserver les types de cuisine les mieux notées
+    
+    { $match: {
+        avgNotation: { $gte: 15 }
     } }
 
 ]);
