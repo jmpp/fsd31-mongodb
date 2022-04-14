@@ -255,7 +255,7 @@ db.sales.aggregate( [
 
 - 1. On aimerait maintenant avoir tous les noms et id des restaurants par type de cuisine et quartier. Limitez l'affichage à deux résultats.
 
-- 2. Affichez maintenant tous les noms de restaurant italien par de quartier.
+- 2. Affichez maintenant tous les noms de restaurant Italiens par quartier.
 
 - 3. Affichez également, pour chaque restaurant, la moyenne de ses scores. Et ordonnez vos résultats par ordre de moyenne décroissante.
 
@@ -267,14 +267,14 @@ Indications : vous utiliserez l'opérateur suivant pour désimbriquer les élém
  { $unwind : "$grades" } ,
 ```
 
-- 4. Faites une requête qui récupère les 5 derniers restaurants par quartier les mieux notés et placez cette recherche dans une collection top5.
+- 4. Faites une requête qui récupère les 5 meilleurs restaurants par quartier et placez cette recherche dans une collection nommée `top5`.
 
-Remarques : vous pouvez utiliser l'opérateur suivant pour enregistrer une nouvelle collection à partir d'une recherche données :
+Remarques : vous pouvez utiliser l'opérateur suivant pour enregistrer une nouvelle collection à partir d'une recherche donnée :
 
 ```js
 { $out : "top5" }
 ```
 
-- 5 Récupérez le nombre de restaurants par quartier ainsi que leur type de cuisine dont le score est supérieur ou égale à 30. Ordonnez le résultat par ordre décroissant de nombre de restaurant.
+- 5 Récupérez le nombre de restaurants par quartier ainsi que leur type de cuisine qui contiennent AU MOINS un score supérieur ou égal à 30. Ordonnez le résultat par ordre décroissant de nombre de restaurant.
 
 - 6 Cherchez les meilleurs restaurants en proposant une requête de votre choix, faites le par quartier. Puis donnez la moyenne des scores de ces restaurants.
