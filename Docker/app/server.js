@@ -12,6 +12,14 @@ app.use("/static", express.static("./static"));
 // App routing
 app.use("/", require("./router"));
 
-app.listen(port, () => {
-  console.log(`http://localhost:${port}`);
-});
+const DB_NAME = 'ny';
+
+require('./database')
+  .open(DB_NAME)
+  .then(() => {
+    // Démarrage de l'application Node.js
+    app.listen(port, () => {
+      console.log(`http://localhost:${port}`);
+    });
+  });
+

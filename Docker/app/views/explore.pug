@@ -1,0 +1,11 @@
+extends layout.pug
+
+block content
+  <h1>Hello Explore</h1>
+
+  <p>Voici la liste de tous les quartiers distincts des restaus New Yorkais :</p>
+
+  <ul>
+    each borough in results
+      <li>#{borough}</li>
+  </ul>

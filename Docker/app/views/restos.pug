@@ -1,0 +1,17 @@
+extends layout.pug
+
+block content
+  <h1>Bienvenue sur la page restaurants!</h1>
+
+  <form method="get" action="?">
+    <fieldset>
+      <legend>Trouver un restaurant dans NYC :</legend>
+
+      <label>
+        | Nom du restaurant :
+        <input type="search" name="searchString" placeholder="e.g. Starbucks" />
+      </label>
+    </fieldset>
+
+    <button type="submit">Rechercher</button>
+  </form>
