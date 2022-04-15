@@ -1,7 +1,6 @@
 const { getCollection } = require('./database');
 
 const express = require('express');
-const { render } = require('pug');
 const router = new express.Router()
 
 /**
@@ -28,31 +27,60 @@ async function getHome(req, res) {
 async function getRestos(req, res) {
   let viewData = {};
 
-  // Récupère l'objet Collection 'restaurants' de la base Mongo
-  const restaurants = await getCollection('restaurants');
+  // Récupérer les données de la QueryString
+  const { searchString } = req.query;
 
-  // Test de récupération
-  const results = await restaurants.aggregate([
-    { $group: {
-      _id: '$borough',
-      nbRestaurants: { $sum: 1 }
-    } }
-  ]).toArray();
+  if (searchString) {
+    console.log('La personne souhaite rechercher '+ searchString);
 
-  viewData = { results };
+    // Récupère l'objet Collection 'restaurants' de la base Mongo
+    const restaurants = await getCollection('restaurants');
+
+    const results = await restaurants.find({
+      name: new RegExp(searchString, 'ig')
+    }).sort({ name: 1 }).limit(20).toArray();
+
+    viewData = { results, searchString };
+  }
 
   res.render('restos', viewData);
 }
 
 async function getExplore(req, res) {
+  let viewData = {};
 
   const restaurants = await getCollection('restaurants');
 
-  const results = await restaurants.distinct('borough');
+  // Récupération des éléments de la Query String
+  const { selectedBorough, selectedCuisine } = req.query;
 
-  // db.restaurants.distinct('borough');
+  if (selectedBorough && selectedCuisine) {
+    const results = await restaurants.find({
+      borough: selectedBorough,
+      cuisine: selectedCuisine
+    }).toArray();
 
-  res.render('explore', { results });
+    viewData = { results };
+  }
+
+  // Parallèlisation des promesses pour un gain de temps
+  const [boroughs, cuisines] = await Promise.all([
+    restaurants.distinct('borough'),
+    restaurants.distinct('cuisine')
+  ]);
+
+  // const boroughs = await restaurants.distinct('borough');
+  // const cuisines = await restaurants.distinct('cuisine');
+
+  viewData = {
+    ...viewData,
+    boroughs,
+    cuisines,
+    selectedBorough,
+    selectedCuisine
+  }
+
+  res.render('explore', viewData);
 }
 
 // Exporte le routeur pour le fichier principal

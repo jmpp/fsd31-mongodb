@@ -1,5 +1,7 @@
 extends layout.pug
 
+include mixins
+
 block content
   <h1>Bienvenue sur la page restaurants!</h1>
 
@@ -9,9 +11,20 @@ block content
 
       <label>
         | Nom du restaurant :
-        <input type="search" name="searchString" placeholder="e.g. Starbucks" />
+        <input type="search" name="searchString" placeholder="e.g. Starbucks" value="#{searchString}" />
       </label>
     </fieldset>
 
     <button type="submit">Rechercher</button>
   </form>
+
+  if results
+    if results.length > 0
+      <ul class="list-results">
+        each restaurant in results
+          +restaurantCard(restaurant)
+      </ul>
+    else
+      <p>Aucun résultat pour votre recherche « #{searchString} »</p>
+
+

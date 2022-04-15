@@ -6,7 +6,7 @@ const port = 3002;
 
 app.set("view engine", "pug");
 
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use("/static", express.static("./static"));
 
 // App routing

@@ -1,0 +1,6 @@
+mixin restaurantCard(resto)
+  <li>
+    <h4>#{resto.name}</h4>
+    <p><em>#{resto.cuisine}</em></p>
+    <p>#{resto.address.building} #{resto.address.street}, #{resto.address.zipcode}, #{resto.borough}</p>
+  </li>
