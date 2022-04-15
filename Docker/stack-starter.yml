@@ -12,3 +12,15 @@ services:
 
     volumes: 
       - ./data:/data/db
+
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    depends_on:
+      - mongo
+    volumes:
+      - /app/node_modules
+      - ./app:/app
+    ports:
+      - "3002:3002"
